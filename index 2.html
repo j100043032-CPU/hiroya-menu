@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>HIROYA Menu</title>
+<style>
+:root{--pr:#1a1a2e;--ac:#c8a96e;--bg:#faf8f4;--tx:#2d2d2d;--bd:#e8e0d0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--tx);color-scheme:light;}
+#ls,#ps,#ms,#as{display:none;}
+#ls,#ps{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;}
+#ls{background:var(--pr);}
+#ls h1{color:var(--ac);font-size:1.6rem;margin-bottom:8px;letter-spacing:2px;}
+#ls p{color:#aaa;font-size:0.9rem;margin-bottom:36px;}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:360px;}
+.lbtn{background:#2a2a4a;border:1px solid #444;color:#fff;border-radius:12px;padding:18px 10px;cursor:pointer;font-size:1rem;text-align:center;}
+.lbtn .flag{font-size:1.5rem;display:block;margin-bottom:4px;}
+.alink{margin-top:48px;color:#666;font-size:0.75rem;cursor:pointer;text-decoration:underline;}
+#ps{background:var(--pr);}
+#ps h2{color:var(--ac);margin-bottom:24px;}
+#pwinput{padding:14px;border-radius:8px;border:1px solid #555;background:#2a2a4a!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:1rem;width:100%;max-width:280px;margin-bottom:12px;text-align:center;letter-spacing:4px;}
+#pwsubmit{background:var(--ac);color:var(--pr);border:none;padding:14px;border-radius:8px;font-size:1rem;cursor:pointer;width:100%;max-width:280px;font-weight:bold;}
+#pwerr{color:#f88;font-size:0.85rem;margin-top:8px;min-height:20px;}
+.pwback{margin-top:20px;color:#666;cursor:pointer;font-size:0.85rem;text-decoration:underline;}
+#ms,#as{background:var(--bg);min-height:100vh;}
+.mhdr{background:var(--pr);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.mhdr h1{color:var(--ac);font-size:1.1rem;}
+.mbody{padding:16px;max-width:600px;margin:0 auto;}
+.obox{background:#fff8ec;border-left:3px solid var(--ac);padding:14px;border-radius:8px;margin-bottom:16px;font-size:0.9rem;color:#555;line-height:1.6;}
+.stitle{background:var(--pr);color:var(--ac);padding:10px 16px;border-radius:8px;font-size:1rem;font-weight:bold;margin:20px 0 8px;}
+.mitem{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);}
+.iname{flex:1;}.iname .jp{font-size:0.8rem;color:#999;margin-bottom:2px;}.iname .tr{font-size:0.95rem;}
+.iprice{color:var(--ac);font-weight:bold;white-space:nowrap;margin-left:12px;padding-top:2px;}
+.bbtn{color:#aaa;cursor:pointer;font-size:0.85rem;border:1px solid #555;padding:6px 12px;border-radius:20px;background:transparent;}
+.ahdr{background:var(--pr);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;}
+.ahdr h1{color:var(--ac);font-size:0.9rem;flex:1;}
+.tabwrap{background:#fff;border-bottom:2px solid var(--bd);position:sticky;top:57px;z-index:190;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+.tabs{display:inline-flex;padding:0 8px;}
+.tab{display:inline-block;padding:12px 16px;font-size:0.88rem;cursor:pointer;border-bottom:3px solid transparent;color:#888;white-space:nowrap;}
+.tab.act{border-bottom-color:var(--ac);color:var(--pr);font-weight:bold;}
+.addltab{display:inline-block;padding:12px 14px;font-size:0.85rem;cursor:pointer;color:var(--ac);white-space:nowrap;}
+.abody{padding:16px;max-width:700px;margin:0 auto;padding-bottom:100px;}
+.asec{margin-bottom:24px;}
+.asec h2{font-size:0.95rem;color:var(--pr);border-bottom:2px solid var(--ac);padding-bottom:6px;margin-bottom:12px;}
+.aitem{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:10px;position:relative;}
+.aitem label{font-size:0.73rem;color:#888;display:block;margin-bottom:3px;margin-top:8px;}
+.aitem label:first-of-type{margin-top:0;}
+.aitem input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:0.9rem;background:#fff!important;color:#2d2d2d!important;-webkit-text-fill-color:#2d2d2d!important;}
+.titem{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:10px;}
+.titem .jr{font-size:0.78rem;color:#999;margin-bottom:6px;}
+.titem .tn{font-size:1rem;font-weight:500;color:#2d2d2d;margin-bottom:4px;}
+.titem .tp{font-size:0.85rem;color:var(--ac);}
+.rtbtn{background:#2a4a8a;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:0.78rem;cursor:pointer;margin-top:8px;}
+.trbtn{background:#2a4a8a;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-size:0.82rem;cursor:pointer;margin-top:8px;width:100%;}
+.trbtn:disabled{background:#aaa;}
+.svbtn{background:var(--ac);color:var(--pr);border:none;padding:14px;border-radius:8px;font-size:1rem;font-weight:bold;cursor:pointer;width:100%;margin-top:16px;}
+.blkbtn{background:#1a5c3a;color:#fff;border:none;padding:12px;border-radius:8px;font-size:0.9rem;cursor:pointer;width:100%;margin-top:8px;}
+.addbtn{background:transparent;border:1px dashed var(--ac);color:var(--ac);padding:10px;border-radius:8px;cursor:pointer;width:100%;font-size:0.9rem;margin-top:6px;}
+.delbtn{position:absolute;top:10px;right:10px;background:#fee;border:none;color:#c00;font-size:0.75rem;cursor:pointer;padding:4px 8px;border-radius:4px;}
+.movbtns{position:absolute;top:10px;right:56px;display:flex;gap:4px;}
+.mvbtn{background:#e8f0fe;border:none;color:#2a4a8a;font-size:0.78rem;cursor:pointer;padding:4px 7px;border-radius:4px;}
+.mvbtn:disabled{background:#eee;color:#aaa;cursor:default;}
+.pwsec{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:24px;}
+.pwsec h2{font-size:0.95rem;color:var(--pr);border-bottom:2px solid var(--ac);padding-bottom:6px;margin-bottom:12px;}
+.pwsec label{font-size:0.75rem;color:#888;display:block;margin-bottom:4px;margin-top:10px;}
+.pwsec input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:0.9rem;background:#fff!important;color:#2d2d2d!important;-webkit-text-fill-color:#2d2d2d!important;}
+.pwchg{background:var(--pr);color:var(--ac);border:none;padding:10px;border-radius:8px;cursor:pointer;margin-top:12px;font-size:0.9rem;width:100%;}
+.pwmsg{font-size:0.82rem;margin-top:8px;min-height:18px;}
+.note{background:#e8f4fd;border-left:3px solid #4a90d9;padding:10px 14px;border-radius:6px;font-size:0.8rem;color:#2a5a8a;margin-bottom:16px;line-height:1.6;}
+.movl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;}
+.movl.open{display:flex;}
+.modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:360px;}
+.modal h3{font-size:1rem;margin-bottom:16px;color:var(--pr);}
+.mlist{max-height:280px;overflow-y:auto;}
+.mlitem{padding:12px;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:0.95rem;}
+.mclose{margin-top:16px;width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:#fff;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div id="ls">
+  <h1>&#127826; HIROYA</h1>
+  <p>&#35328;&#35486;&#12434;&#36984;&#25246; / Select Language</p>
+  <div class="lgrid" id="lgrid"></div>
+  <div class="alink" onclick="showPS()">&#128274; Staff Only</div>
+</div>
+
+<div id="ps">
+  <h2>&#128274; Staff Login</h2>
+  <input type="password" id="pwinput" placeholder="Password">
+  <button id="pwsubmit" onclick="checkPW()">Login</button>
+  <div id="pwerr"></div>
+  <div class="pwback" onclick="goLS()">&#8592; Back</div>
+</div>
+
+<div id="ms">
+  <div class="mhdr">
+    <button class="bbtn" onclick="goLS()">&#8592; Back</button>
+    <h1>&#127826; HIROYA</h1>
+    <div style="width:60px"></div>
+  </div>
+  <div class="mbody" id="mbody"></div>
+</div>
+
+<div id="as">
+  <div class="ahdr">
+    <button class="bbtn" onclick="goLS()">&#8592;</button>
+    <h1>&#128295; Menu Admin</h1>
+  </div>
+  <div class="tabwrap"><div class="tabs" id="tabs"></div></div>
+  <div class="abody" id="abody"></div>
+</div>
+
+<div class="movl" id="movl">
+  <div class="modal">
+    <h3>Add Language</h3>
+    <div class="mlist" id="mlist"></div>
+    <button class="mclose" onclick="closeM()">Cancel</button>
+  </div>
+</div>
+
+<script>
+(function(){
+var PW=localStorage.getItem('h_pw')||'hiroya2024';
+var aLang='ja';
+var aLangs=['ja','en','zh','zh-HK'];
+
+var LANGS=[
+  {c:'en',  l:'English',              jl:'英語',                   f:'EN'},
+  {c:'zh',  l:'简体中文',          jl:'中国語(簡体)',          f:'CN'},
+  {c:'zh-TW',l:'繁體中文(台)', jl:'中国語(繁体・台)',   f:'TW'},
+  {c:'zh-HK',l:'繁體中文(港)', jl:'中国語(繁体・港/広東語)',f:'HK'},
+  {c:'es',  l:'Español',                   jl:'スペイン語',         f:'ES'},
+  {c:'fr',  l:'Français',                  jl:'フランス語',         f:'FR'},
+  {c:'de',  l:'Deutsch',                        jl:'ドイツ語',               f:'DE'},
+  {c:'ru',  l:'Русский',              jl:'ロシア語',               f:'RU'},
+  {c:'pt',  l:'Português',                 jl:'ポルトガル語',   f:'PT'},
+  {c:'ar',  l:'العربية',              jl:'アラビア語',         f:'AR'},
+  {c:'ko',  l:'한국어',              jl:'韓国語',                     f:'KR'},
+  {c:'hi',  l:'हिन्दी',              jl:'ヒンディー語',   f:'HI'},
+  {c:'bn',  l:'বাংলা',              jl:'ベンガル語',         f:'BN'},
+  {c:'ta',  l:'தமிழ்',              jl:'タミル語',               f:'TA'},
+  {c:'ur',  l:'اردو',              jl:'ウルドゥー語',   f:'UR'},
+  {c:'tr',  l:'Türkçe',                  jl:'トルコ語',               f:'TR'},
+  {c:'vi',  l:'Tiếng Việt',           jl:'ベトナム語',         f:'VN'},
+  {c:'th',  l:'ภาษาไทย',        jl:'タイ語',                   f:'TH'},
+  {c:'it',  l:'Italiano',                       jl:'イタリア語',         f:'IT'},
+  {c:'id',  l:'Bahasa Indonesia',               jl:'インドネシア語',f:'ID'}
+];
+
+var SEC={
+  assorted:{ja:'厳選盛り合わせ'},
+  skewers:{ja:'焼き鳥'},
+  parts:{ja:'つくね・希少部位など'},
+  rare:{ja:'希少部位'},
+  veggie:{ja:'焼き野菜'},
+  sides:{ja:'一品料理'},
+  finishing:{ja:'〜めもの'},
+  beer:{ja:'麦酒'},
+  wine:{ja:'ワイン'},
+  sake:{ja:'日本酒'},
+  shochu:{ja:'焼酒'},
+  highball:{ja:'ハイボール'},
+  fruit:{ja:'果実酒'},
+  sour:{ja:'サワー・お茶割り'},
+  soft:{ja:'ソフトドリンク'}
+};
+
+var M={
+  assorted:[
+    {ja:'十種盛り合わせ',en:'10 Skewers Assortment',zh:'十串拼盘','zh-HK':'十串拼盤',p:3580},
+    {ja:'八種盛り合わせ',en:'8 Skewers Assortment',zh:'八串拼盘','zh-HK':'八串拼盤',p:2950},
+    {ja:'六種盛り合わせ',en:'6 Skewers Assortment',zh:'六串拼盘','zh-HK':'六串拼盤',p:2380}
+  ],
+  skewers:[
+    {ja:'名物もも串',en:'Signature Thigh Skewer',zh:'招牌鸡腿串','zh-HK':'招牌雞腿串',p:450},
+    {ja:'ささみの昆布だし漬け',en:'Marinated Breast in Kombu Dashi',zh:'昆布汤腌鸡里脸串','zh-HK':'昆布湯雞里肌串',p:400},
+    {ja:'ムネ 茎わさび',en:'Chicken Breast with Wasabi Stems',zh:'鸡胸山葵茎串','zh-HK':'雞胸山葵茎串',p:400},
+    {ja:'皮',en:'Chicken Skin Skewer',zh:'鸡皮串','zh-HK':'雞皮串',p:400},
+    {ja:'手羽元',en:'Chicken Drumette',zh:'鸡小腿串','zh-HK':'雞小腿串',p:400},
+    {ja:'手羽先',en:'Chicken Wing',zh:'鸡翅串','zh-HK':'雞翅串',p:400}
+  ],
+  parts:[
+    {ja:'特製つくね（親鳥）',en:'Special Tsukune Meatball',zh:'特制鸡肉丸','zh-HK':'特製雞肉丸',p:430},
+    {ja:'ハラミ',en:'Chicken Skirt Meat',zh:'鸡横隔膜串','zh-HK':'雞橫隔膜串',p:370},
+    {ja:'上せせり（タレ・塩）',en:'Premium Neck Meat',zh:'鸡颈肉串','zh-HK':'雞頸肉串',p:370},
+    {ja:'ふりそで',en:'Shoulder Meat Skewer',zh:'鸡肩肉串','zh-HK':'雞肩肉串',p:350},
+    {ja:'とりネギ（もも）',en:'Chicken Thigh with Leek',zh:'鸡腿肉葱串','zh-HK':'雞腿肉蔥串',p:350},
+    {ja:'砂ずり',en:'Chicken Gizzard',zh:'鸡胲串','zh-HK':'雞胲串',p:350},
+    {ja:'肝（タレ・塩）',en:'Chicken Liver',zh:'鸡肝串','zh-HK':'雞肝串',p:350},
+    {ja:'心（タレ・塩）',en:'Chicken Heart',zh:'鸡心串','zh-HK':'雞心串',p:350},
+    {ja:'ボンジリ',en:'Chicken Tail (Bonjiri)',zh:'鸡尾肉串','zh-HK':'雞尾肉串',p:350},
+    {ja:'ヤゲンナンコツ',en:'Breast Cartilage',zh:'鸡软骨串','zh-HK':'雞軟骨串',p:350}
+  ],
+  rare:[
+    {ja:'背肝',en:'Back Liver',zh:'背鸡肝串','zh-HK':'背雞肝串',p:400},
+    {ja:'心残り',en:'Heart Tip',zh:'心尖串','zh-HK':'心尖串',p:400}
+  ],
+  veggie:[
+    {ja:'焼き玉ねぎ',en:'Grilled Onion',zh:'烤洋葱','zh-HK':'烤洋蔥',p:650},
+    {ja:'ズッキーニ',en:'Grilled Zucchini',zh:'烤西葵芦','zh-HK':'烤西葵蓆',p:300},
+    {ja:'焼き椰谷',en:'Grilled Shiitake',zh:'烤香菇','zh-HK':'烤香菇',p:580}
+  ],
+  sides:[
+    {ja:'肉みそ旬野菜スティック',en:'Seasonal Veg Sticks with Meat Miso',zh:'肉味噌时令蔬菜条','zh-HK':'肉味噌时令蔬菜條',p:780},
+    {ja:'ひろやサラダ',en:'Hiroya House Salad',zh:'Hiroya 沙拉','zh-HK':'Hiroya 沙律',p:800},
+    {ja:'漬物二種盛り',en:'Assorted Pickles (2 kinds)',zh:'两种漬菜拼盘','zh-HK':'兩款醒菜拼盤',p:680},
+    {ja:'ごぼうの醤油漬け',en:'Soy-Marinated Burdock',zh:'酱油腌牛蒗','zh-HK':'醬油醒牛蒗',p:600},
+    {ja:'焼き単揚げ',en:'Grilled Thick Fried Tofu',zh:'烤厚塘豆腐','zh-HK':'烤厚炒豆腐',p:580},
+    {ja:'炊り明太子',en:'Seared Spicy Cod Roe',zh:'炊烤明太子','zh-HK':'炙燒明太子',p:680},
+    {ja:'クリームチャンジャ',en:'Creamy Spicy Cod Entrails',zh:'奶油辣鳕鱼内脏','zh-HK':'忌廉辣鰈魚內臟',p:680},
+    {ja:'スルメのキムチ漬け',en:'Kimchi-Pickled Dried Squid',zh:'泡菜腌鱿鱼干','zh-HK':'泡菜醒魷魚乾',p:680},
+    {ja:'いぶりがっこのポテトサラダ',en:'Smoked Pickled Radish Potato Salad',zh:'熏葆卜干土豆沙拉','zh-HK':'煙燻蔄發乾薯仙4沙律',p:580},
+    {ja:'特選うにくらげ',en:'Premium Sea Urchin with Jellyfish',zh:'特选海胆海蕲','zh-HK':'特選海蚽海蕲',p:780},
+    {ja:'イカの塩辛',en:'Salted Squid Entrails',zh:'和蠓鱿鱼内脏','zh-HK':'鹹漬魷魚內臟',p:680},
+    {ja:'鱭の塩辛',en:'Salted Salmon Entrails',zh:'和蠓三文鱼内脏','zh-HK':'鹹漬三文魚內臟',p:780}
+  ],
+  finishing:[
+    {ja:'鳥ぞうすい',en:'Chicken Rice Porridge',zh:'鸡肉雕粥','zh-HK':'雞肉雜炊粥',p:880},
+    {ja:'焼鳥丼',en:'Grilled Chicken Rice Bowl',zh:'烤鸡肉盖饭','zh-HK':'烤雞肉蓋飯',p:780},
+    {ja:'焼きおにぎり',en:'Grilled Rice Ball',zh:'烤饭团','zh-HK':'烤飯糰',p:400},
+    {ja:'白ごはん',en:'Steamed White Rice',zh:'白米饭','zh-HK':'白飯',p:300},
+    {ja:'鳥塩ラーメン',en:'Chicken Salt Ramen',zh:'鸡盐拉面','zh-HK':'雞鹽拉麵',p:850},
+    {ja:'自家製鶏スープ',en:'Homemade Chicken Soup',zh:'自制鸡汤','zh-HK':'自家製雞湯',p:400}
+  ],
+  beer:[
+    {ja:'生ビール（アサヒ）',en:'Draft Beer (Asahi)',zh:'朝日生啊酒','zh-HK':'朝日生啊酒',p:680},
+    {ja:'中びん（赤星）',en:'Bottle Beer (Sapporo Red Star)',zh:'中瓶啊酒（赤星）','zh-HK':'中瓶啊酒（赤星）',p:700},
+    {ja:'ノンアルコールビール（アサヒ）',en:'Non-Alcoholic Beer (Asahi)',zh:'无酒精啊酒','zh-HK':'無酒精啊酒',p:480}
+  ],
+  wine:[
+    {ja:'グラスワイン（赤/白/オレンジ）',en:'Glass Wine (Red/White/Orange)',zh:'杯装葡萄酒','zh-HK':'杯裝葡萄酒',p:980},
+    {ja:'ボトルワイン 7,000円～',en:'Bottle Wine from 7,000yen - ask staff',zh:'瓶装葡萄酒 7,000日元起','zh-HK':'瓶裝葡萄酒 7,000日元起',p:null}
+  ],
+  sake:[
+    {ja:'酒鯨（高知）一合',en:'Sake Kujira (Kochi) 180ml',zh:'酒鲸（高知）一合','zh-HK':'酒鯨（高知）一合',p:980},
+    {ja:'各種ございます。お気軽にお尋ねください',en:'Various brands - ask staff',zh:'另有多款清酒','zh-HK':'另有多款清酒',p:null}
+  ],
+  shochu:[
+    {ja:'麦 二階堂',en:'Barley Shochu - Nikaido',zh:'大麦烧酒 二阶堂','zh-HK':'大麥燒酒 二階堂',p:650},
+    {ja:'芋 黒霞島',en:'Sweet Potato Shochu - Kuro Kirishima',zh:'红薯烧酒 黑雾岛','zh-HK':'番薯燒酒 黑霧島',p:650},
+    {ja:'芋 三岳',en:'Sweet Potato Shochu - Miyatake',zh:'红薯烧酒 三岳','zh-HK':'番薯燒酒 三岳',p:700}
+  ],
+  highball:[
+    {ja:'角ハイボール',en:'Kakubin Highball',zh:'角瓶高球','zh-HK':'角瓶高球',p:600},
+    {ja:'知多',en:'Chita Highball',zh:'知多高球','zh-HK':'知多高球',p:900},
+    {ja:'宮城峡',en:'Miyagikyo Highball',zh:'宮城峡高球','zh-HK':'宮城峡高球',p:1200},
+    {ja:'余市',en:'Yoichi Highball',zh:'余市高球','zh-HK':'余市高球',p:1200},
+    {ja:'白州',en:'Hakushu Highball',zh:'白州高球','zh-HK':'白州高球',p:1300},
+    {ja:'竹鶴',en:'Taketsuru Highball',zh:'竹鶴高球','zh-HK':'竹鶴高球',p:1300}
+  ],
+  fruit:[
+    {ja:'梅酒',en:'Plum Wine',zh:'梅酒','zh-HK':'梅酒',p:680},
+    {ja:'ゆず酒',en:'Yuzu Citrus Liqueur',zh:'柚子酒','zh-HK':'柚子酒',p:680}
+  ],
+  sour:[
+    {ja:'富士白レモンサワー',en:'Fuji-Shiro Lemon Sour',zh:'富士白柠櫬沙瓦','zh-HK':'富士白櫬櫬沙瓦',p:650},
+    {ja:'トマトサワー',en:'Tomato Sour',zh:'番茄沙瓦','zh-HK':'番茄沙瓦',p:650},
+    {ja:'ウーロンハイ',en:'Oolong High',zh:'乌龙茶烧酒','zh-HK':'烏龍茶燒酒',p:650},
+    {ja:'緑茶ハイ',en:'Green Tea High',zh:'绿茶烧酒','zh-HK':'綠茶燒酒',p:650}
+  ],
+  soft:[
+    {ja:'ウーロン茶',en:'Oolong Tea',zh:'乌龙茶','zh-HK':'烏龍茶',p:450},
+    {ja:'緑茶',en:'Green Tea',zh:'绿茶','zh-HK':'綠茶',p:450},
+    {ja:'ジンジャーエール',en:'Ginger Ale',zh:'姜汁汽水','zh-HK':'薑汁汽水',p:450},
+    {ja:'コーラ',en:'Cola',zh:'可乐','zh-HK':'可樂',p:450},
+    {ja:'オレンジ',en:'Orange Juice',zh:'橙汁','zh-HK':'橙汁',p:450}
+  ]
+};
+
+function gt(o,l){return o[l]||o.en||o.ja||'';}
+function es(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getLI(c){if(c==='ja')return{f:'JP',l:'日本語',jl:'日本語'};for(var i=0;i<LANGS.length;i++)if(LANGS[i].c===c)return LANGS[i];return{f:'?',l:c,jl:c};}
+
+function show(id){
+  ['ls','ps','ms','as'].forEach(function(s){document.getElementById(s).style.display='none';});
+  var el=document.getElementById(id);
+  el.style.display=(id==='ls'||id==='ps')?'flex':'block';
+  window.scrollTo(0,0);
+}
+function goLS(){show('ls');}
+function showPS(){document.getElementById('pwinput').value='';document.getElementById('pwerr').textContent='';show('ps');}
+function checkPW(){
+  if(document.getElementById('pwinput').value===PW){aLang='ja';renderAdmin();show('as');}
+  else{document.getElementById('pwerr').textContent='Wrong password';}
+}
+window.checkPW=checkPW;
+function showM(l){renderMenu(l);show('ms');}
+
+function toast(msg,col){
+  var e=document.createElement('div');
+  e.textContent=msg;
+  e.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:'+(col||'#333')+';color:#fff;padding:10px 20px;border-radius:8px;font-size:0.88rem;z-index:9999;max-width:80%;text-align:center;';
+  document.body.appendChild(e);
+  setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},2200);
+}
+
+function renderLG(){
+  var g=document.getElementById('lgrid');g.innerHTML='';
+  aLangs.forEach(function(c){
+    var li=getLI(c);
+    var d=document.createElement('div');d.className='lbtn';
+    d.innerHTML='<span class="flag">'+li.f+'</span>'+li.l;
+    (function(x){d.onclick=function(){showM(x);};})(c);
+    g.appendChild(d);
+  });
+}
+
+function renderMenu(lang){
+  var b=document.getElementById('mbody'),h='';
+  var ot={
+    ja:'お通しとして小さな前菜を一品お出しします。料金は席料に含まれております。',
+    en:'A small appetizer will be served. The cost is included in the table charge.',
+    zh:'用餐前提供一份小前菜，费用已包含在座位费中。',
+    'zh-HK':'用餐前提供一份小前菜，費用已包含在座位費中。'
+  };
+  h+='<div class="obox">'+gt(ot,lang)+'</div>';
+  Object.keys(M).forEach(function(sec){
+    var sn=SEC[sec]?gt(SEC[sec],lang):sec;
+    h+='<div class="stitle">'+es(sn)+'</div>';
+    M[sec].forEach(function(it){
+      var nm=it[lang]||it.en||it.ja;
+      var jp=(lang!=='ja')?'<div class="jp">'+es(it.ja)+'</div>':'';
+      var pr=it.p?'&yen;'+it.p.toLocaleString():'';
+      h+='<div class="mitem"><div class="iname">'+jp+'<div class="tr">'+es(nm)+'</div></div><div class="iprice">'+pr+'</div></div>';
+    });
+  });
+  b.innerHTML=h;
+}
+
+function renderAdmin(){renderTabs();renderTab(aLang);}
+
+function renderTabs(){
+  var w=document.getElementById('tabs');w.innerHTML='';
+  aLangs.forEach(function(c){
+    var li=getLI(c);
+    var t=document.createElement('div');
+    t.className='tab'+(c===aLang?' act':'');
+    t.setAttribute('data-c',c);
+    t.textContent=(c==='ja'?'日本語（編集）':li.jl);
+    (function(x){t.onclick=function(){switchTab(x);};})(c);
+    w.appendChild(t);
+  });
+  var ab=document.createElement('div');ab.className='addltab';ab.textContent='+ 言語追加';ab.onclick=openM;
+  w.appendChild(ab);
+}
+
+function switchTab(c){
+  if(aLang==='ja')saveJA();
+  aLang=c;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('act',t.getAttribute('data-c')===c);});
+  renderTab(c);
+  window.scrollTo(0,58);
+}
+
+function saveJA(){
+  Object.keys(M).forEach(function(sec){
+    M[sec].forEach(function(it,i){
+      var id=sec+'_'+i;
+      var je=document.getElementById(id+'_j'),pe=document.getElementById(id+'_p');
+      if(je)it.ja=je.value;
+      if(pe){var v=pe.value;it.p=v?parseInt(v,10):null;}
+    });
+  });
+}
+
+function renderTab(lang){
+  var b=document.getElementById('abody');
+  b.innerHTML='';
+  var frag=document.createDocumentFragment();
+
+  if(lang==='ja'){
+    var pw=document.createElement('div');pw.className='pwsec';
+    pw.innerHTML='<h2>パスワード変更</h2>'+
+      '<div class="note">Default: <strong>hiroya2024</strong></div>'+
+      '<label>現在のパスワード</label><input type="password" id="pc">'+
+      '<label>新しいパスワード</label><input type="password" id="pn">'+
+      '<label>確認</label><input type="password" id="pn2">'+
+      '<button class="pwchg" onclick="doPWChange()">変更する</button>'+
+      '<div class="pwmsg" id="pwmsg"></div>';
+    frag.appendChild(pw);
+
+    var nt=document.createElement('div');nt.className='note';
+    nt.textContent='日本語と価格を入力→「全言語を自動翻訳」で一括翻訳できます';
+    frag.appendChild(nt);
+
+    var bb=document.createElement('button');bb.className='blkbtn';
+    bb.textContent='全メニューを一括翻訳（全言語）';bb.onclick=bulkAll;
+    frag.appendChild(bb);
+
+    Object.keys(M).forEach(function(sec){
+      var sd=document.createElement('div');sd.className='asec';
+      var h2=document.createElement('h2');h2.textContent=SEC[sec]?SEC[sec].ja:sec;sd.appendChild(h2);
+      M[sec].forEach(function(it,i){sd.appendChild(mkJACard(sec,i,it));});
+      var ab2=document.createElement('button');ab2.className='addbtn';ab2.textContent='+ 項目を追加';
+      (function(s){ab2.onclick=function(){addItem(s);};})(sec);
+      sd.appendChild(ab2);frag.appendChild(sd);
+    });
+
+    var sv=document.createElement('button');sv.className='svbtn';
+    sv.textContent='保存してメニューに反映する';
+    sv.onclick=function(){saveJA();toast('保存しました！','#2a8a5a');};
+    frag.appendChild(sv);
+
+  } else {
+    var li=getLI(lang);
+    var nt2=document.createElement('div');nt2.className='note';
+    nt2.textContent=li.jl+' の翻訳一覧。日本語編集は「日本語（編集）」タブへ。';
+    frag.appendChild(nt2);
+
+    var rb=document.createElement('button');rb.className='blkbtn';
+    rb.textContent=li.jl+' を全件再翻訳';
+    (function(l){rb.onclick=function(){retransAll(l);};})(lang);frag.appendChild(rb);
+
+    var sp=document.createElement('div');sp.style.height='12px';frag.appendChild(sp);
+
+    Object.keys(M).forEach(function(sec){
+      var sd=document.createElement('div');sd.className='asec';
+      var sn=SEC[sec]?gt(SEC[sec],lang):sec;
+      var h2=document.createElement('h2');h2.textContent=sn;sd.appendChild(h2);
+      M[sec].forEach(function(it,i){
+        var cd=document.createElement('div');cd.className='titem';
+        var tr=it[lang]||'(未翻訳)';
+        var pr=it.p?'¥'+it.p.toLocaleString():'';
+        cd.innerHTML='<div class="jr">JP: '+es(it.ja)+'</div>'+
+          '<div class="tn">'+es(tr)+'</div>'+
+          (pr?'<div class="tp">'+pr+'</div>':'');
+        var r=document.createElement('button');r.className='rtbtn';r.textContent='再翻訳';
+        (function(s,idx,l,btn){r.onclick=function(){retransOne(s,idx,l,btn);};})(sec,i,lang,r);
+        cd.appendChild(r);sd.appendChild(cd);
+      });
+      frag.appendChild(sd);
+    });
+  }
+  b.appendChild(frag);
+}
+
+function mkJACard(sec,i,it){
+  var id=sec+'_'+i;
+  var len=M[sec].length;
+  var d=document.createElement('div');d.className='aitem';
+  var db=document.createElement('button');db.className='delbtn';db.textContent='削除';
+  (function(s,idx){db.onclick=function(){delItem(s,idx);};})(sec,i);
+  d.appendChild(db);
+  var mb=document.createElement('div');mb.className='movbtns';
+  var mu=document.createElement('button');mu.className='mvbtn';mu.textContent='↑';mu.disabled=(i===0);
+  (function(s,idx){mu.onclick=function(){moveItem(s,idx,-1);};})(sec,i);
+  var md=document.createElement('button');md.className='mvbtn';md.textContent='↓';md.disabled=(i===len-1);
+  (function(s,idx){md.onclick=function(){moveItem(s,idx,1);};})(sec,i);
+  mb.appendChild(mu);mb.appendChild(md);d.appendChild(mb);
+  var l1=document.createElement('label');l1.textContent='日本語名';d.appendChild(l1);
+  var inp=document.createElement('input');inp.type='text';inp.id=id+'_j';inp.value=it.ja||'';d.appendChild(inp);
+  var l2=document.createElement('label');l2.textContent='価格（円）・不要な場合は空欄';d.appendChild(l2);
+  var pr=document.createElement('input');pr.type='number';pr.id=id+'_p';pr.value=it.p||'';d.appendChild(pr);
+  var tb=document.createElement('button');tb.className='trbtn';tb.id='tb_'+id;
+  tb.textContent='全言語を自動翻訳';
+  (function(s,idx){tb.onclick=function(){transItem(s,idx);};})(sec,i);
+  d.appendChild(tb);
+  return d;
+}
+
+function trText(text,tl){
+  return new Promise(function(res){
+    if(!text||!text.trim()){res('');return;}
+    var gl=(tl==='zh-HK')?'zh-TW':tl;
+    fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl='+encodeURIComponent(gl)+'&dt=t&q='+encodeURIComponent(text))
+      .then(function(r){return r.json();})
+      .then(function(d){var s='';if(d&&d[0])d[0].forEach(function(p){if(p[0])s+=p[0];});res(s);})
+      .catch(function(){res('');});
+  });
+}
+
+async function transItem(sec,idx){
+  var id=sec+'_'+idx;
+  var je=document.getElementById(id+'_j');
+  if(!je||!je.value.trim()){toast('日本語を入力してください','#c00');return;}
+  var txt=je.value.trim();
+  var tb=document.getElementById('tb_'+id);
+  if(tb){tb.disabled=true;tb.textContent='翻訳中...';}
+  var nonJa=aLangs.filter(function(l){return l!=='ja';});
+  try{
+    var rs=await Promise.all(nonJa.map(function(l){return trText(txt,l);}));
+    rs.forEach(function(r,i){if(r)M[sec][idx][nonJa[i]]=r;});
+    toast('翻訳完了!','#2a8a5a');
+  }catch(e){toast('Error','#c00');}
+  if(tb){tb.disabled=false;tb.textContent='全言語を自動翻訳';}
+}
+
+async function bulkAll(){
+  var secs=Object.keys(M),nonJa=aLangs.filter(function(l){return l!=='ja';});
+  if(!nonJa.length){toast('翻訳先の言語がありません','#c00');return;}
+  toast('一括翻訳中...','#2a4a8a');
+  for(var s=0;s<secs.length;s++){
+    for(var i=0;i<M[secs[s]].length;i++){
+      var t=M[secs[s]][i].ja||'';if(!t)continue;
+      var rs=await Promise.all(nonJa.map(function(l){return trText(t,l);}));
+      rs.forEach(function(r,ri){if(r)M[secs[s]][i][nonJa[ri]]=r;});
+    }
+  }
+  toast('全件翻訳完了!','#2a8a5a');renderTab(aLang);
+}
+
+async function retransAll(lang){
+  var secs=Object.keys(M);toast('翻訳中...','#2a4a8a');
+  for(var s=0;s<secs.length;s++){
+    for(var i=0;i<M[secs[s]].length;i++){
+      var t=M[secs[s]][i].ja||'';if(!t)continue;
+      var r=await trText(t,lang);if(r)M[secs[s]][i][lang]=r;
+    }
+  }
+  toast('翻訳完了!','#2a8a5a');renderTab(lang);
+}
+
+async function retransOne(sec,idx,lang,btn){
+  var t=M[sec][idx].ja||'';if(!t)return;
+  btn.disabled=true;btn.textContent='...';
+  var r=await trText(t,lang);
+  if(r){M[sec][idx][lang]=r;toast('翻訳完了!','#2a8a5a');}
+  btn.disabled=false;btn.textContent='再翻訳';
+  renderTab(lang);
+}
+
+function addItem(sec){
+  var it={ja:'',p:null};aLangs.forEach(function(l){if(l!=='ja')it[l]='';});
+  M[sec].push(it);renderTab('ja');
+}
+
+function delItem(sec,i){M[sec].splice(i,1);toast('削除しました','#c00');renderTab('ja');}
+function moveItem(sec,i,dir){
+  var arr=M[sec];
+  var j=i+dir;
+  if(j<0||j>=arr.length)return;
+  var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;
+  renderTab('ja');
+  setTimeout(function(){
+    var cards=document.querySelectorAll('#abody .aitem');
+    if(cards[j])cards[j].scrollIntoView({block:'nearest',behavior:'smooth'});
+  },50);
+}
+
+function doPWChange(){
+  var pc=document.getElementById('pc').value;
+  var pn=document.getElementById('pn').value;
+  var pn2=document.getElementById('pn2').value;
+  var m=document.getElementById('pwmsg');
+  if(pc!==PW){m.style.color='#c00';m.textContent='現在のパスワードが違います';return;}
+  if(pn.length<4){m.style.color='#c00';m.textContent='4文字以上にしてください';return;}
+  if(pn!==pn2){m.style.color='#c00';m.textContent='新しいパスワードが一致しません';return;}
+  PW=pn;localStorage.setItem('h_pw',PW);
+  m.style.color='#2a8a5a';m.textContent='変更しました!';
+}
+window.doPWChange=doPWChange;
+
+async function addLang(c){
+  aLangs.push(c);
+  var secs=Object.keys(M);toast('追加中...','#2a4a8a');
+  for(var s=0;s<secs.length;s++){
+    for(var i=0;i<M[secs[s]].length;i++){
+      var t=M[secs[s]][i].ja||'';if(!t)continue;
+      var r=await trText(t,c);if(r)M[secs[s]][i][c]=r;
+    }
+  }
+  renderLG();renderTabs();switchTab(c);toast(getLI(c).jl+' を追加しました!','#2a8a5a');
+}
+
+function openM(){
+  var list=document.getElementById('mlist');list.innerHTML='';
+  LANGS.forEach(function(l){
+    if(aLangs.indexOf(l.c)>=0)return;
+    var d=document.createElement('div');d.className='mlitem';
+    d.innerHTML='<span>'+l.f+'</span><span>'+l.jl+'</span>';
+    (function(c){d.onclick=function(){addLang(c);closeM();};})(l.c);
+    list.appendChild(d);
+  });
+  if(!list.children.length)list.innerHTML='<div style="padding:16px;color:#aaa;text-align:center;">追加できる言語はありません</div>';
+  document.getElementById('movl').classList.add('open');
+}
+window.openM=openM;
+function closeM(){document.getElementById('movl').classList.remove('open');}
+window.closeM=closeM;
+window.goLS=goLS;
+window.showPS=showPS;
+
+window.addEventListener('DOMContentLoaded',function(){
+  renderLG();show('ls');
+  document.getElementById('pwinput').addEventListener('keydown',function(e){if(e.key==='Enter')checkPW();});
+});
+})();
+</script>
+</body>
+</html>

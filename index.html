@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>HIROYA Menu</title>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <style>
 :root{--pr:#1a1a2e;--ac:#c8a96e;--bg:#faf8f4;--tx:#2d2d2d;--bd:#e8e0d0;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -44,7 +45,7 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:va
 .abody{padding:16px;max-width:700px;margin:0 auto;padding-bottom:100px;}
 .asec{margin-bottom:24px;}
 .asec h2{font-size:0.95rem;color:var(--pr);border-bottom:2px solid var(--ac);padding-bottom:6px;margin-bottom:12px;}
-.aitem{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:10px;position:relative;}
+.aitem{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:12px 12px 12px 44px;margin-bottom:10px;position:relative;}
 .aitem label{font-size:0.73rem;color:#888;display:block;margin-bottom:3px;margin-top:8px;}
 .aitem label:first-of-type{margin-top:0;}
 .aitem input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:0.9rem;background:#fff!important;color:#2d2d2d!important;-webkit-text-fill-color:#2d2d2d!important;}
@@ -58,7 +59,7 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:va
 .svbtn{background:var(--ac);color:var(--pr);border:none;padding:14px;border-radius:8px;font-size:1rem;font-weight:bold;cursor:pointer;width:100%;margin-top:16px;}
 .blkbtn{background:#1a5c3a;color:#fff;border:none;padding:12px;border-radius:8px;font-size:0.9rem;cursor:pointer;width:100%;margin-top:8px;}
 .addbtn{background:transparent;border:1px dashed var(--ac);color:var(--ac);padding:10px;border-radius:8px;cursor:pointer;width:100%;font-size:0.9rem;margin-top:6px;}
-.delbtn{position:absolute;top:10px;right:10px;background:#fee;border:none;color:#c00;font-size:0.75rem;cursor:pointer;padding:4px 8px;border-radius:4px;}
+.delbtn{position:absolute;top:10px;right:10px;background:#fee;border:none;color:#c00;font-size:0.75rem;cursor:pointer;padding:4px 8px;border-radius:4px;touch-action:manipulation;}
 .pwsec{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:24px;}
 .pwsec h2{font-size:0.95rem;color:var(--pr);border-bottom:2px solid var(--ac);padding-bottom:6px;margin-bottom:12px;}
 .pwsec label{font-size:0.75rem;color:#888;display:block;margin-bottom:4px;margin-top:10px;}
@@ -73,6 +74,23 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:va
 .mlist{max-height:280px;overflow-y:auto;}
 .mlitem{padding:12px;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:0.95rem;}
 .mclose{margin-top:16px;width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:#fff;cursor:pointer;}
+.drag-handle{position:absolute;top:0;left:0;bottom:0;width:36px;display:flex;align-items:center;justify-content:center;color:#aaa;cursor:grab;font-size:1.3rem;user-select:none;-webkit-user-select:none;touch-action:none;border-right:1px solid #f0f0f0;background:#fafafa;border-radius:8px 0 0 8px;}
+.drag-handle:active{cursor:grabbing;background:#f0e8d8;color:var(--ac);}
+.sortable-ghost{opacity:0.4;background:#f5f0e0!important;}
+.sortable-chosen{box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+.sortable-drag{opacity:0.7;}
+.confirm-ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.confirm-ovl.open{display:flex;}
+.confirm-box{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:380px;}
+.confirm-box h3{font-size:1.05rem;margin-bottom:12px;color:var(--pr);}
+.confirm-box p{font-size:0.88rem;color:#555;line-height:1.6;margin-bottom:18px;}
+.confirm-actions{display:flex;flex-direction:column;gap:8px;}
+.cbtn{padding:12px;border-radius:8px;font-size:0.92rem;cursor:pointer;border:none;font-weight:500;}
+.cbtn-yes{background:var(--ac);color:var(--pr);font-weight:bold;}
+.cbtn-no{background:#fff;color:#555;border:1px solid var(--bd);}
+.cbtn-revert{background:#fee;color:#c00;border:1px solid #fcc;}
+.cbtn-cancel{background:transparent;color:#888;border:1px solid #ddd;}
+.cbtn:disabled{opacity:0.6;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -103,7 +121,7 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:va
 
 <div id="as">
   <div class="ahdr">
-    <button class="bbtn" onclick="goLS()">&#8592;</button>
+    <button class="bbtn" onclick="adminBack()">&#8592;</button>
     <h1>&#128295; Menu Admin</h1>
   </div>
   <div class="tabwrap"><div class="tabs" id="tabs"></div></div>
@@ -115,6 +133,14 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:va
     <h3>Add Language</h3>
     <div class="mlist" id="mlist"></div>
     <button class="mclose" onclick="closeM()">Cancel</button>
+  </div>
+</div>
+
+<div class="confirm-ovl" id="confirmOvl">
+  <div class="confirm-box">
+    <h3 id="cfTitle">保存しますか？</h3>
+    <p id="cfMsg">編集内容を保存して自動翻訳を実行します。<br>翻訳には数秒かかる場合があります。</p>
+    <div class="confirm-actions" id="cfActions"></div>
   </div>
 </div>
 
@@ -165,7 +191,7 @@ var SEC={
   soft:{ja:'ソフトドリンク'}
 };
 
-var M={
+var DEFAULT_M={
   assorted:[
     {ja:'十種盛り合わせ',en:'10 Skewers Assortment',zh:'十串拼盘','zh-HK':'十串拼盤',p:3580},
     {ja:'八種盛り合わせ',en:'8 Skewers Assortment',zh:'八串拼盘','zh-HK':'八串拼盤',p:2950},
@@ -267,6 +293,20 @@ var M={
   ]
 };
 
+var M;
+try{
+  var saved=localStorage.getItem('h_menu');
+  M=saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_M));
+}catch(e){M=JSON.parse(JSON.stringify(DEFAULT_M));}
+
+try{
+  var sl=localStorage.getItem('h_langs');
+  if(sl){var arr=JSON.parse(sl);if(arr&&arr.length)aLangs=arr;}
+}catch(e){}
+
+function saveM(){try{localStorage.setItem('h_menu',JSON.stringify(M));}catch(e){}}
+function saveLangs(){try{localStorage.setItem('h_langs',JSON.stringify(aLangs));}catch(e){}}
+
 function gt(o,l){return o[l]||o.en||o.ja||'';}
 function es(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getLI(c){if(c==='ja')return{f:'JP',l:'日本語',jl:'日本語'};for(var i=0;i<LANGS.length;i++)if(LANGS[i].c===c)return LANGS[i];return{f:'?',l:c,jl:c};}
@@ -279,8 +319,12 @@ function show(id){
 }
 function goLS(){show('ls');}
 function showPS(){document.getElementById('pwinput').value='';document.getElementById('pwerr').textContent='';show('ps');}
+var SNAP=null;
+function takeSnap(){try{SNAP={M:JSON.parse(JSON.stringify(M)),aLangs:aLangs.slice()};}catch(e){SNAP=null;}}
+function restoreSnap(){if(!SNAP)return;M=JSON.parse(JSON.stringify(SNAP.M));aLangs=SNAP.aLangs.slice();saveM();saveLangs();}
+
 function checkPW(){
-  if(document.getElementById('pwinput').value===PW){aLang='ja';renderAdmin();show('as');}
+  if(document.getElementById('pwinput').value===PW){aLang='ja';takeSnap();renderAdmin();show('as');}
   else{document.getElementById('pwerr').textContent='Wrong password';}
 }
 window.checkPW=checkPW;
@@ -361,6 +405,7 @@ function saveJA(){
       if(pe){var v=pe.value;it.p=v?parseInt(v,10):null;}
     });
   });
+  saveM();
 }
 
 function renderTab(lang){
@@ -380,7 +425,7 @@ function renderTab(lang){
     frag.appendChild(pw);
 
     var nt=document.createElement('div');nt.className='note';
-    nt.textContent='日本語と価格を入力→「全言語を自動翻訳」で一括翻訳できます';
+    nt.innerHTML='・日本語と価格を入力→「全言語を自動翻訳」で一括翻訳<br>・左端の「☰」ハンドルでドラッグして並び替え（画面端まで持っていくと自動スクロール）<br>・編集完了したら左上の「←」を押して保存・翻訳';
     frag.appendChild(nt);
 
     var bb=document.createElement('button');bb.className='blkbtn';
@@ -390,21 +435,26 @@ function renderTab(lang){
     Object.keys(M).forEach(function(sec){
       var sd=document.createElement('div');sd.className='asec';
       var h2=document.createElement('h2');h2.textContent=SEC[sec]?SEC[sec].ja:sec;sd.appendChild(h2);
-      M[sec].forEach(function(it,i){sd.appendChild(mkJACard(sec,i,it));});
+      var listWrap=document.createElement('div');
+      listWrap.className='sortlist';
+      listWrap.setAttribute('data-sec',sec);
+      M[sec].forEach(function(it,i){listWrap.appendChild(mkJACard(sec,i,it));});
+      sd.appendChild(listWrap);
+      initSortable(listWrap,sec);
       var ab2=document.createElement('button');ab2.className='addbtn';ab2.textContent='+ 項目を追加';
       (function(s){ab2.onclick=function(){addItem(s);};})(sec);
       sd.appendChild(ab2);frag.appendChild(sd);
     });
 
     var sv=document.createElement('button');sv.className='svbtn';
-    sv.textContent='保存してメニューに反映する';
-    sv.onclick=function(){saveJA();toast('保存しました！','#2a8a5a');};
+    sv.textContent='保存してメニューに反映（自動翻訳あり）';
+    sv.onclick=function(){adminBack();};
     frag.appendChild(sv);
 
   } else {
     var li=getLI(lang);
     var nt2=document.createElement('div');nt2.className='note';
-    nt2.textContent=li.jl+' の翻訳一覧。日本語編集は「日本語（編集）」タブへ。';
+    nt2.textContent=li.jl+' の翻訳一覧。日本語編集・並び替えは「日本語（編集）」タブへ。';
     frag.appendChild(nt2);
 
     var rb=document.createElement('button');rb.className='blkbtn';
@@ -434,16 +484,53 @@ function renderTab(lang){
   b.appendChild(frag);
 }
 
+function initSortable(el,sec){
+  if(typeof Sortable==='undefined')return;
+  Sortable.create(el,{
+    handle:'.drag-handle',
+    animation:150,
+    ghostClass:'sortable-ghost',
+    chosenClass:'sortable-chosen',
+    dragClass:'sortable-drag',
+    forceFallback:true,
+    fallbackTolerance:5,
+    touchStartThreshold:5,
+    scroll:true,
+    scrollSensitivity:120,
+    scrollSpeed:15,
+    bubbleScroll:true,
+    onStart:function(){saveJA();},
+    onEnd:function(evt){
+      var oi=evt.oldIndex,ni=evt.newIndex;
+      if(oi===ni||oi==null||ni==null)return;
+      var arr=M[sec];
+      var item=arr.splice(oi,1)[0];
+      arr.splice(ni,0,item);
+      saveM();
+      renderTab('ja');
+    }
+  });
+}
+
 function mkJACard(sec,i,it){
   var id=sec+'_'+i;
-  var d=document.createElement('div');d.className='aitem';
+  var d=document.createElement('div');d.className='aitem';d.setAttribute('data-idx',i);
+
+  var dh=document.createElement('div');dh.className='drag-handle';dh.innerHTML='&#9776;';dh.title='ドラッグで並び替え';
+  d.appendChild(dh);
+
   var db=document.createElement('button');db.className='delbtn';db.textContent='削除';
   (function(s,idx){db.onclick=function(){delItem(s,idx);};})(sec,i);
   d.appendChild(db);
+
   var l1=document.createElement('label');l1.textContent='日本語名';d.appendChild(l1);
-  var inp=document.createElement('input');inp.type='text';inp.id=id+'_j';inp.value=it.ja||'';d.appendChild(inp);
+  var inp=document.createElement('input');inp.type='text';inp.id=id+'_j';inp.value=it.ja||'';
+  inp.addEventListener('change',function(){it.ja=inp.value;saveM();});
+  d.appendChild(inp);
   var l2=document.createElement('label');l2.textContent='価格（円）・不要な場合は空欄';d.appendChild(l2);
-  var pr=document.createElement('input');pr.type='number';pr.id=id+'_p';pr.value=it.p||'';d.appendChild(pr);
+  var pr=document.createElement('input');pr.type='number';pr.id=id+'_p';pr.value=it.p||'';
+  pr.addEventListener('change',function(){var v=pr.value;it.p=v?parseInt(v,10):null;saveM();});
+  d.appendChild(pr);
   var tb=document.createElement('button');tb.className='trbtn';tb.id='tb_'+id;
   tb.textContent='全言語を自動翻訳';
   (function(s,idx){tb.onclick=function(){transItem(s,idx);};})(sec,i);
@@ -451,15 +538,23 @@ function mkJACard(sec,i,it){
   return d;
 }
 
-function trText(text,tl){
+function trText(text,tl,timeoutMs){
   return new Promise(function(res){
     if(!text||!text.trim()){res('');return;}
     var gl=(tl==='zh-HK')?'zh-TW':tl;
+    var done=false;
+    var to=setTimeout(function(){if(!done){done=true;res('');}},timeoutMs||8000);
     fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl='+encodeURIComponent(gl)+'&dt=t&q='+encodeURIComponent(text))
       .then(function(r){return r.json();})
-      .then(function(d){var s='';if(d&&d[0])d[0].forEach(function(p){if(p[0])s+=p[0];});res(s);})
-      .catch(function(){res('');});
+      .then(function(d){if(done)return;done=true;clearTimeout(to);var s='';if(d&&d[0])d[0].forEach(function(p){if(p[0])s+=p[0];});res(s);})
+      .catch(function(){if(done)return;done=true;clearTimeout(to);res('');});
   });
+}
+async function trTextRetry(text,tl){
+  var r=await trText(text,tl,8000);
+  if(r)return r;
+  await new Promise(function(rs){setTimeout(rs,400);});
+  return await trText(text,tl,8000);
 }
 
 async function transItem(sec,idx){
@@ -467,18 +562,21 @@ async function transItem(sec,idx){
   var je=document.getElementById(id+'_j');
   if(!je||!je.value.trim()){toast('日本語を入力してください','#c00');return;}
   var txt=je.value.trim();
+  M[sec][idx].ja=txt;
   var tb=document.getElementById('tb_'+id);
   if(tb){tb.disabled=true;tb.textContent='翻訳中...';}
   var nonJa=aLangs.filter(function(l){return l!=='ja';});
   try{
     var rs=await Promise.all(nonJa.map(function(l){return trText(txt,l);}));
     rs.forEach(function(r,i){if(r)M[sec][idx][nonJa[i]]=r;});
+    saveM();
     toast('翻訳完了!','#2a8a5a');
   }catch(e){toast('Error','#c00');}
   if(tb){tb.disabled=false;tb.textContent='全言語を自動翻訳';}
 }
 
 async function bulkAll(){
+  saveJA();
   var secs=Object.keys(M),nonJa=aLangs.filter(function(l){return l!=='ja';});
   if(!nonJa.length){toast('翻訳先の言語がありません','#c00');return;}
   toast('一括翻訳中...','#2a4a8a');
@@ -489,6 +587,7 @@ async function bulkAll(){
       rs.forEach(function(r,ri){if(r)M[secs[s]][i][nonJa[ri]]=r;});
     }
   }
+  saveM();
   toast('全件翻訳完了!','#2a8a5a');renderTab(aLang);
 }
 
@@ -500,6 +599,7 @@ async function retransAll(lang){
       var r=await trText(t,lang);if(r)M[secs[s]][i][lang]=r;
     }
   }
+  saveM();
   toast('翻訳完了!','#2a8a5a');renderTab(lang);
 }
 
@@ -507,17 +607,18 @@ async function retransOne(sec,idx,lang,btn){
   var t=M[sec][idx].ja||'';if(!t)return;
   btn.disabled=true;btn.textContent='...';
   var r=await trText(t,lang);
-  if(r){M[sec][idx][lang]=r;toast('翻訳完了!','#2a8a5a');}
+  if(r){M[sec][idx][lang]=r;saveM();toast('翻訳完了!','#2a8a5a');}
   btn.disabled=false;btn.textContent='再翻訳';
   renderTab(lang);
 }
 
 function addItem(sec){
+  saveJA();
   var it={ja:'',p:null};aLangs.forEach(function(l){if(l!=='ja')it[l]='';});
-  M[sec].push(it);renderTab('ja');
+  M[sec].push(it);saveM();renderTab('ja');
 }
 
-function delItem(sec,i){M[sec].splice(i,1);toast('削除しました','#c00');renderTab('ja');}
+function delItem(sec,i){M[sec].splice(i,1);saveM();toast('削除しました','#c00');renderTab('ja');}
 
 function doPWChange(){
   var pc=document.getElementById('pc').value;
@@ -533,7 +634,7 @@ function doPWChange(){
 window.doPWChange=doPWChange;
 
 async function addLang(c){
-  aLangs.push(c);
+  aLangs.push(c);saveLangs();
   var secs=Object.keys(M);toast('追加中...','#2a4a8a');
   for(var s=0;s<secs.length;s++){
     for(var i=0;i<M[secs[s]].length;i++){
@@ -541,6 +642,7 @@ async function addLang(c){
       var r=await trText(t,c);if(r)M[secs[s]][i][c]=r;
     }
   }
+  saveM();
   renderLG();renderTabs();switchTab(c);toast(getLI(c).jl+' を追加しました!','#2a8a5a');
 }
 
@@ -560,6 +662,136 @@ window.openM=openM;
 function closeM(){document.getElementById('movl').classList.remove('open');}
 window.closeM=closeM;
 window.goLS=goLS;
+
+function openConfirm(title,msg,actions){
+  document.getElementById('cfTitle').textContent=title;
+  document.getElementById('cfMsg').innerHTML=msg;
+  var box=document.getElementById('cfActions');
+  box.innerHTML='';
+  actions.forEach(function(a){
+    var b=document.createElement('button');
+    b.className='cbtn '+(a.cls||'');
+    b.textContent=a.label;
+    b.onclick=function(){a.fn(b);};
+    box.appendChild(b);
+  });
+  document.getElementById('confirmOvl').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmOvl').classList.remove('open');}
+
+function hasChanges(){
+  if(!SNAP)return false;
+  try{
+    if(JSON.stringify(SNAP.aLangs)!==JSON.stringify(aLangs))return true;
+    if(JSON.stringify(SNAP.M)!==JSON.stringify(M))return true;
+  }catch(e){return true;}
+  return false;
+}
+
+function adminBack(){
+  if(aLang==='ja')saveJA();
+  if(!hasChanges()){goLS();return;}
+  openConfirm('保存しますか？','編集内容を保存して、変更・追加された項目だけ自動翻訳します。<br>すでに翻訳済みの項目はスキップされます。',[
+    {label:'はい（保存して自動翻訳）',cls:'cbtn-yes',fn:function(btn){
+      startTranslateFlow(btn);
+    }},
+    {label:'いいえ（編集画面に戻る）',cls:'cbtn-no',fn:function(){closeConfirm();}},
+    {label:'修正前の状態に戻して終了',cls:'cbtn-revert',fn:function(){
+      restoreSnap();closeConfirm();toast('修正前に戻しました','#c00');goLS();
+    }}
+  ]);
+}
+
+function startTranslateFlow(yesBtn){
+  var box=yesBtn.parentNode;
+  var siblings=box.querySelectorAll('button');
+  siblings.forEach(function(s){s.disabled=true;});
+  yesBtn.textContent='翻訳中...';
+  // 進捗表示をメッセージ部に揮出
+  var msg=document.getElementById('cfMsg');
+  msg.innerHTML='<div id="trprog">準備中...</div><div style="width:100%;height:6px;background:#eee;border-radius:3px;margin-top:8px;overflow:hidden;"><div id="trbar" style="height:100%;background:var(--ac);width:0%;transition:width .3s;"></div></div>';
+  // キャンセルボタンを追加
+  var cancelBtn=document.createElement('button');
+  cancelBtn.className='cbtn cbtn-cancel';
+  cancelBtn.textContent='キャンセル（ここまでの翻訳を保存）';
+  cancelBtn.onclick=function(){TR_CANCEL=true;cancelBtn.disabled=true;cancelBtn.textContent='キャンセル中...';};
+  box.appendChild(cancelBtn);
+  var t0=Date.now();
+  doSaveAndTranslate(function(done,total){
+    var p=document.getElementById('trprog');
+    var bar=document.getElementById('trbar');
+    if(!p||!bar)return;
+    if(total===0){p.textContent='翻訳が必要な項目はありませんでした';bar.style.width='100%';return;}
+    var pct=Math.round(done/total*100);
+    var el=Math.round((Date.now()-t0)/1000);
+    p.textContent=done+' / '+total+' 項目を翻訳中... ('+el+'秒経過)';
+    bar.style.width=pct+'%';
+  }).then(function(){
+    if(TR_CANCEL){
+      closeConfirm();takeSnap();toast('途中まで保存しました','#c8a96e');goLS();
+    }else{
+      closeConfirm();takeSnap();toast('保存・翻訳完了!','#2a8a5a');goLS();
+    }
+  }).catch(function(e){
+    toast('エラーが発生しました','#c00');
+    siblings.forEach(function(s){s.disabled=false;});
+    yesBtn.textContent='はい（保存して自動翻訳）';
+    if(cancelBtn.parentNode)cancelBtn.parentNode.removeChild(cancelBtn);
+  });
+}
+window.adminBack=adminBack;
+
+var TR_CANCEL=false;
+function findSnapItem(sec,jaText){
+  if(!SNAP||!SNAP.M||!SNAP.M[sec])return null;
+  for(var i=0;i<SNAP.M[sec].length;i++){if(SNAP.M[sec][i].ja===jaText)return SNAP.M[sec][i];}
+  return null;
+}
+function needsTranslation(it,sec,nonJa){
+  if(!it.ja||!it.ja.trim())return false;
+  // 日本語がスナップショットと同じ項目があり、その訳が全て揃っていればスキップ
+  var snap=findSnapItem(sec,it.ja);
+  if(snap){
+    for(var k=0;k<nonJa.length;k++){
+      if(!snap[nonJa[k]]||!it[nonJa[k]])return true;
+    }
+    // スナップと現状の訳が一致しているか
+    for(var k2=0;k2<nonJa.length;k2++){
+      if(snap[nonJa[k2]]!==it[nonJa[k2]])return true;
+    }
+    return false;
+  }
+  // 新規項目または日本語が変わった項目
+  return true;
+}
+
+async function doSaveAndTranslate(progressFn){
+  saveJA();
+  TR_CANCEL=false;
+  var secs=Object.keys(M),nonJa=aLangs.filter(function(l){return l!=='ja';});
+  if(!nonJa.length){saveM();return;}
+  // 翻訳が必要な項目だけリストアップ
+  var todo=[];
+  for(var s=0;s<secs.length;s++){
+    for(var i=0;i<M[secs[s]].length;i++){
+      var it=M[secs[s]][i];
+      if(needsTranslation(it,secs[s],nonJa))todo.push({sec:secs[s],idx:i});
+    }
+  }
+  if(!todo.length){saveM();if(progressFn)progressFn(0,0);return;}
+  for(var n=0;n<todo.length;n++){
+    if(TR_CANCEL)break;
+    if(progressFn)progressFn(n,todo.length);
+    var it2=M[todo[n].sec][todo[n].idx];
+    var t=it2.ja||'';if(!t)continue;
+    var rs=await Promise.all(nonJa.map(function(l){return trTextRetry(t,l);}));
+    rs.forEach(function(r,ri){if(r)it2[nonJa[ri]]=r;});
+    // 5項目ごとに途中保存（中断しても進捗を残す）
+    if((n+1)%5===0)saveM();
+  }
+  saveM();
+  if(progressFn)progressFn(todo.length,todo.length);
+}
 window.showPS=showPS;
 
 window.addEventListener('DOMContentLoaded',function(){
